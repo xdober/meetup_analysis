@@ -13,8 +13,27 @@ member_path = 'data/members.csv'
 mmb_tpc_path = 'data/members_topics.csv'
 venue_path = 'data/venues.csv'
 
+
 def info_split(info, item):
     return info[item].value_counts()
+
+
+# 统计每个item取值的数量，并画出柱形图
+def info_draw(info, item, title=None):
+    info_splited = info_split(info, item)
+    fig_tmp = plt.figure()
+    axes_tmp = fig_tmp.add_axes([0.1, 0.1, 0.8, 0.8])
+    if not title :
+        title=item
+    axes_tmp.set_title(title)
+    info_splited.plot.bar()
+    plt.xticks(rotation='0')
+    maxy = info_splited.max() / 50
+    for x, y in zip(arange(len(info_splited)), info_splited):
+        plt.text(x, y + maxy, '%d' % y, va='center', ha='center')
+    plt.savefig('images/'+title+'.png')
+    return fig_tmp
+
 
 city_info = pd.read_csv(city_path)
 city_number = city_info.shape[0]
@@ -24,23 +43,21 @@ city_split = city_info['state'].value_counts()
 # 每个州中城市的个数
 # city_split.plot.bar()
 #
-# # 城市在坐标系中的位置
-# x=city_info[city_attributes[4]]
-# y=city_info[city_attributes[6]]
-# fig=plt.figure()
-# axes=fig.add_axes([0.1,0.1,0.8,0.8])
-# axes.plot(x,y,'g+')
-# axes.set_xlabel('x')
-# axes.set_ylabel('y')
-# axes.set_title('title')
-# plt.show()
+# # # 城市在坐标系中的位置
+# x = city_info[city_attributes[4]]
+# y = city_info[city_attributes[6]]
+# fig0 = plt.figure()
+# axes0 = fig0.add_axes([0.1, 0.1, 0.8, 0.8])
+# axes0.scatter(x, y, s=35,marker='*',linewidths=2,label='cities')
+# axes0.legend(loc='upper left')
+# axes0.set_xlabel('latitude')
+# axes0.set_ylabel('longitude')
+# axes0.set_title('cities\' location')
 
 group_info = pd.read_csv(group_path)
 group_num = group_info.shape[0]
 group_attr_num = group_info.shape[1]
 group_attrs = group_info.columns
-
-
 
 # ranges = np.arange(0,5.5,0.5)
 # group_rating=group_info['group_id'].groupby(pd.cut(group_info.rating, ranges)).count()
@@ -78,14 +95,47 @@ group_attrs = group_info.columns
 #     plt.text(x, y+200, '%d' % y, ha='center', va='center')
 # group_rating.plot.bar()
 
-# groupby created date
-group_created=group_info['group_id'].groupby(pd.to_datetime(group_info.created).dt.year).count()
-fig4=plt.figure()
-axes4=fig4.add_axes([0.1,0.1,0.8,0.8])
-axes4.set_title('groups number per year')
-group_created.plot.bar()
-for x,y in zip(np.arange(len(group_created)), group_created):
-    plt.text(x, y+100, '%d' % y, ha='center', va='center')
+# # groupby created date
+# group_created = group_info['group_id'].groupby(pd.to_datetime(group_info.created).dt.year).count()
+# fig4 = plt.figure()
+# axes4 = fig4.add_axes([0.1, 0.1, 0.8, 0.8])
+# axes4.set_title('groups number per year')
+# group_created.plot.bar()
+# for x, y in zip(np.arange(len(group_created)), group_created):
+#     plt.text(x, y + 100, '%d' % y, ha='center', va='center')
+#
+# # groups number per state
+# group_state_fig = info_draw(group_info, 'state', 'groups number per state')
+
+# # groups' location
+# lats=group_info['lat']
+# lons=group_info['lon']
+# fig5=plt.figure()
+# axes5=fig5.add_axes([0.1,0.1,0.8,0.8])
+# axes5.scatter(lats,lons,label='groups', s=10)
+# axes5.legend(loc='upper left')
+# axes5.set_title('groups\' location' )
+# axes5.set_xlabel('latitude')
+# axes5.set_ylabel('longitude')
+
+# organizer
+group_org=info_split(group_info,'organizer.member_id')
+print(group_org.head())
+
+# who
+group_who=info_split(group_info,'who')
+print(group_who.head())
+
+# join_mode
+group_join_mode=info_split(group_info,'join_mode')
+group_join_mode_fig=info_draw(group_info,'join_mode')
+
+# visibility
+group_visiblity_fig=info_draw(group_info,'visibility')
+
+# state
+group_state_fig=info_draw(group_info,'state')
+
 plt.show()
 
 # group_split_category=group_info['category.shortname'].value_counts()
