@@ -22,7 +22,10 @@ def info_split(info, item):
 def info_draw(info, item, title=None):
     info_splited = info_split(info, item)
     fig_tmp = plt.figure()
-    axes_tmp = fig_tmp.add_axes([0.1, 0.1, 0.8, 0.8])
+    wid=len(info_splited)*1.6
+    left=10.5/wid
+    fig_tmp.set_size_inches(wid,10.5)
+    axes_tmp = fig_tmp.add_axes([min(0.1,left), 0.1, 0.9-min(0.1,left), 0.8])
     if not title :
         title=item
     axes_tmp.set_title(title)
@@ -31,7 +34,7 @@ def info_draw(info, item, title=None):
     maxy = info_splited.max() / 50
     for x, y in zip(arange(len(info_splited)), info_splited):
         plt.text(x, y + maxy, '%d' % y, va='center', ha='center')
-    plt.savefig('images/'+title+'.png')
+    plt.savefig('images/%s.pdf' % title, dpi=72, format='pdf')
     return fig_tmp
 
 
@@ -39,20 +42,22 @@ city_info = pd.read_csv(city_path)
 city_number = city_info.shape[0]
 city_attributes = city_info.columns
 city_attr_num = city_info.shape[1]
-city_split = city_info['state'].value_counts()
+# city_split = city_info['state'].value_counts()
 # 每个州中城市的个数
 # city_split.plot.bar()
+city_state_fig=info_draw(city_info,'state','cities number per state')
 #
-# # # 城市在坐标系中的位置
-# x = city_info[city_attributes[4]]
-# y = city_info[city_attributes[6]]
-# fig0 = plt.figure()
-# axes0 = fig0.add_axes([0.1, 0.1, 0.8, 0.8])
-# axes0.scatter(x, y, s=35,marker='*',linewidths=2,label='cities')
-# axes0.legend(loc='upper left')
-# axes0.set_xlabel('latitude')
-# axes0.set_ylabel('longitude')
-# axes0.set_title('cities\' location')
+# # 城市在坐标系中的位置
+x = city_info[city_attributes[4]]
+y = city_info[city_attributes[6]]
+fig0 = plt.figure()
+axes0 = fig0.add_axes([0.1, 0.1, 0.8, 0.8])
+axes0.scatter(x, y, s=35,marker='*',linewidths=2,label='cities')
+axes0.legend(loc='upper left')
+axes0.set_xlabel('latitude')
+axes0.set_ylabel('longitude')
+axes0.set_title('cities\' location')
+plt.savefig('images/cities_location.pdf', dpi=72, format='pdf')
 
 group_info = pd.read_csv(group_path)
 group_num = group_info.shape[0]
@@ -74,6 +79,8 @@ group_attrs = group_info.columns
 #     plt.text(x + 1, y + 80, '%d' % y, ha='center', va='center')
 #     plt.text(x + 1, -400, z, ha='center', va='center', rotation=15)
 #
+group_city_fig=info_draw(group_info,'city','groups number per city')
+plt.xticks(rotation='15')
 # # groups per category
 # group_split_category = info_split(group_info, 'category.shortname')
 # fig2 = plt.figure()
@@ -84,39 +91,50 @@ group_attrs = group_info.columns
 # for x, y, z in zip(np.arange(len(group_split_category)), group_split_category, group_split_category._index):
 #     plt.text(x + 1, y + 80, '%d' % y, ha='center', va='center')
 #     plt.text(x + 1, -400, z, ha='center', va='center', rotation=60)
-#
-# # groupby rating
-# ranges = np.arange(0,5.5,0.5)
-# group_rating=group_info['group_id'].groupby(pd.cut(group_info.rating, ranges)).count()
-# fig3=plt.figure()
-# axes3=fig3.add_axes([0.1,0.2,0.8,0.7])
-# axes3.set_title('groups number per rating')
-# for x,y in zip(np.arange(len(group_rating)), group_rating):
-#     plt.text(x, y+200, '%d' % y, ha='center', va='center')
-# group_rating.plot.bar()
+group_category_fig=info_draw(group_info,'category.shortname','groups number per category')
+plt.xticks(rotation='30')
 
-# # groupby created date
-# group_created = group_info['group_id'].groupby(pd.to_datetime(group_info.created).dt.year).count()
-# fig4 = plt.figure()
-# axes4 = fig4.add_axes([0.1, 0.1, 0.8, 0.8])
-# axes4.set_title('groups number per year')
-# group_created.plot.bar()
-# for x, y in zip(np.arange(len(group_created)), group_created):
-#     plt.text(x, y + 100, '%d' % y, ha='center', va='center')
-#
-# # groups number per state
-# group_state_fig = info_draw(group_info, 'state', 'groups number per state')
+# groupby rating
+ranges = np.arange(0,5.5,0.5)
+group_rating=group_info['group_id'].groupby(pd.cut(group_info.rating, ranges)).count()
+fig3=plt.figure()
+wid3=len(group_rating)*1.6
+fig3.set_size_inches(wid3,10.5)
+axes3=fig3.add_axes([0.1,0.2,0.8,0.7])
+axes3.set_title('groups number per rating')
+for x,y in zip(np.arange(len(group_rating)), group_rating):
+    plt.text(x, y+200, '%d' % y, ha='center', va='center')
+group_rating.plot.bar()
+plt.xticks(rotation='0')
+plt.savefig('images/groups number per rating.pdf', dpi=72, format='pdf')
 
-# # groups' location
-# lats=group_info['lat']
-# lons=group_info['lon']
-# fig5=plt.figure()
-# axes5=fig5.add_axes([0.1,0.1,0.8,0.8])
-# axes5.scatter(lats,lons,label='groups', s=10)
-# axes5.legend(loc='upper left')
-# axes5.set_title('groups\' location' )
-# axes5.set_xlabel('latitude')
-# axes5.set_ylabel('longitude')
+# groupby created date
+group_created = group_info['group_id'].groupby(pd.to_datetime(group_info.created).dt.year).count()
+fig4 = plt.figure()
+wid4=len(group_created)*1.6
+fig4.set_size_inches(wid4,10.5)
+axes4 = fig4.add_axes([0.1, 0.1, 0.8, 0.8])
+axes4.set_title('groups number per year')
+group_created.plot.bar()
+plt.xticks(rotation='0')
+for x, y in zip(np.arange(len(group_created)), group_created):
+    plt.text(x, y + 100, '%d' % y, ha='center', va='center')
+plt.savefig('images/groups number per year.pdf', dpi=72, format='pdf')
+
+# groups number per state
+group_state_fig = info_draw(group_info, 'state', 'groups number per state')
+
+# groups' location
+lats=group_info['lat']
+lons=group_info['lon']
+fig5=plt.figure()
+axes5=fig5.add_axes([0.1,0.1,0.8,0.8])
+axes5.scatter(lats,lons,label='groups', s=10)
+axes5.legend(loc='upper left')
+axes5.set_title('groups\' location' )
+axes5.set_xlabel('latitude')
+axes5.set_ylabel('longitude')
+plt.savefig('images/groups\' location.pdf', dpi=72, format='pdf')
 
 # organizer
 group_org=info_split(group_info,'organizer.member_id')
@@ -128,21 +146,14 @@ print(group_who.head())
 
 # join_mode
 group_join_mode=info_split(group_info,'join_mode')
-group_join_mode_fig=info_draw(group_info,'join_mode')
+group_join_mode_fig=info_draw(group_info,'join_mode', 'group join mode')
 
 # visibility
-group_visiblity_fig=info_draw(group_info,'visibility')
+group_visiblity_fig=info_draw(group_info,'visibility','group visibility')
 
 # state
-group_state_fig=info_draw(group_info,'state')
+group_state_fig=info_draw(group_info,'state', 'group per state')
 
-plt.show()
-
-# group_split_category=group_info['category.shortname'].value_counts()
-# print(group_split_category)
-# group_split_category.plot.bar()
-# for x,y in zip(np.arange(len(group_split_category)),group_split_category):
-#     plt.text(x, y+10, '%.d' % y, ha='center', va='bottom')
 # plt.show()
 
 
