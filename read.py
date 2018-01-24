@@ -52,7 +52,7 @@ x = city_info[city_attributes[4]]
 y = city_info[city_attributes[6]]
 fig0 = plt.figure()
 axes0 = fig0.add_axes([0.1, 0.1, 0.8, 0.8])
-axes0.scatter(x, y, s=35,marker='*',linewidths=2,label='cities')
+axes0.scatter(x, y, s=35,label='cities',alpha='0.2')
 axes0.legend(loc='upper left')
 axes0.set_xlabel('latitude')
 axes0.set_ylabel('longitude')
@@ -129,7 +129,7 @@ lats=group_info['lat']
 lons=group_info['lon']
 fig5=plt.figure()
 axes5=fig5.add_axes([0.1,0.1,0.8,0.8])
-axes5.scatter(lats,lons,label='groups', s=10)
+axes5.scatter(lats,lons,label='groups', s=10, alpha=0.02,linewidths=0)
 axes5.legend(loc='upper left')
 axes5.set_title('groups\' location' )
 axes5.set_xlabel('latitude')
