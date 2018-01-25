@@ -10,6 +10,8 @@ class Const:
     VENUE_PATH = 'data/venues.csv'
     GROUP_PER_MEMBER = 'result/group_number_per_member.csv'
     MEMBER_PER_GROUP = 'result/member_per_group.csv'
+    SIMPLE_PATH = 'result/simple.csv'
+
     class ConstError(TypeError):
         pass
 

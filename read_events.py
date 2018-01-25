@@ -4,9 +4,8 @@ from constant import Const
 from pylab import *
 
 event_info = pd.read_csv(Const.EVENT_PATH)
-event_number = event_info.shape[0]
-event_attrs = event_info.columns
-event_attr_num = event_info.shape[1]
+event_at=rd.DataInfo(event_info)
+event_at.to_excsv(Const.SIMPLE_PATH,item='event')
 
 event_fee_fig = rd.info_draw(event_info, 'fee.required', 'event_fee_required')
 event_state_fig = rd.info_draw(event_info, 'venue.state', 'event_venue_state')

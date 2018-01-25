@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from constant import Const
 from pylab import *
 
 
@@ -96,3 +97,15 @@ class DataInfo(object):
         self.length = len(info)
         self.attrs = list(info.columns.values)
         self.attrs_number = len(self.attrs)
+
+    def to_excsv(self, PATH, **kw):
+        item=self.attrs[0]
+        if 'item' in kw:
+            item=kw['item']
+        simple=pd.read_csv(Const.SIMPLE_PATH)
+        if not (item in simple['item'].values):
+            df = pd.DataFrame(columns=['a', 'b', 'c', 'd'])
+            df.loc[0] = {'a': item, 'b': self.length, 'c': self.attrs_number, 'd': self.attrs}
+            with open(PATH, 'a') as f:
+                df.to_csv(f, header=False, index=False)
+                print('write 1 record!')
