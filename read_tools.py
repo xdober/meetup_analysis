@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from constant import Const
 from pylab import *
 
-
+# kw中如果order项值为index，则按照index排序，否则按value排序
 def info_split(info, item, kw):
     if 'order' in kw:
         if kw['order'] == 'index':
@@ -12,6 +12,7 @@ def info_split(info, item, kw):
 
 
 # 统计每个item取值的数量，并画出柱形图
+# kw继续传递到info_splited中，决定排序的依据
 def info_draw(info, item, title=None, **kw):
     info_splited = info_split(info, item, kw)
     fig_tmp = plt.figure()
@@ -32,14 +33,17 @@ def info_draw(info, item, title=None, **kw):
 
 
 # 按照创建时间分组并画图
-def info_groupedby_created(info, **kw):
+# kw中gap项决定分割的间隔，默认一年，若gap='month',则是一个月
+# kw中created项决定使用哪一组数据，默认为'created'下标的一组
+# kw中rotation项确定了横坐标系的文本旋转角度
+def info_groupedby_created(gap, created, rotation, info, **kw):
     gapp = pd.to_datetime(info.created).dt.year
     if 'gap' in kw:
-        if kw['gap'] == 'month':
+        if gap == 'month':
             gapp = [pd.to_datetime(info.created).dt.year, pd.to_datetime(info.created).dt.month]
     created = 'created'
     if 'created' in kw:
-        created = kw['created']
+        created = created
     info_created = info[created].groupby(gapp).count()
     fig_tmp = plt.figure()
     wid = len(info_created) * 1.6
@@ -49,7 +53,7 @@ def info_groupedby_created(info, **kw):
     axes_tmp.set_title('%s number per year' % info.columns[0])
     info_created.plot.bar()
     if 'rotation' in kw:
-        plt.xticks(rotation=kw['rotation'])
+        plt.xticks(rotation=rotation)
     for x, y in zip(np.arange(len(info_created)), info_created):
         plt.text(x, y + heigh, '%d' % y, ha='center', va='center')
     plt.savefig('images/%s number per year.pdf' % info.columns[0], dpi=72, format='pdf')
@@ -57,6 +61,7 @@ def info_groupedby_created(info, **kw):
 
 
 # 画出评分的柱形图
+# kw中by项确定了评分列
 def info_rating(info, **kw):
     groupedby = 'rating'
     if 'by' in kw:

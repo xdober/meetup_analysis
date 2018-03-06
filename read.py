@@ -19,6 +19,9 @@ def info_split(info, item):
 
 
 # 统计每个item取值的数量，并画出柱形图
+# info:要处理的csv数据
+# item:列名
+# title:要保存的文件名
 def info_draw(info, item, title=None):
     info_splited = info_split(info, item)
     fig_tmp = plt.figure()
