@@ -12,9 +12,18 @@ def info_split(info, item, kw):
 
 
 # 统计每个item取值的数量，并画出柱形图
-# kw继续传递到info_splited中，决定排序的依据
+# kw继续传递到info_splited中，决定排序的依据,notsave在此处决定是否把图形保存到文件
 def info_draw(info, item, title=None, **kw):
     info_splited = info_split(info, item, kw)
+    if 'merge' in kw:
+        def merge_city():
+            info_splited['New York']+=info_splited['New York City']+info_splited['New York, NY']
+            nsplt=info_splited.drop('New York, NY').drop('New York City')
+        switch_dict={
+            'city': merge_city()
+        }
+        switch_dict.get(kw['merge'])
+
     fig_tmp = plt.figure()
     wid = len(info_splited) * 1.6
     left = 2.5 / wid
@@ -28,7 +37,8 @@ def info_draw(info, item, title=None, **kw):
     maxy = info_splited.max() / 50
     for x, y in zip(arange(len(info_splited)), info_splited):
         plt.text(x, y + maxy, '%d' % y, va='center', ha='center')
-    plt.savefig('images/%s.pdf' % title, dpi=72, format='pdf')
+    if 'notsave' not in kw:
+        plt.savefig('images/%s.pdf' % title, dpi=72, format='pdf')
     return fig_tmp
 
 
