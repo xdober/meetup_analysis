@@ -1,4 +1,5 @@
 import pandas as pd
+import re
 import matplotlib.pyplot as plt
 from constant import Const
 from pylab import *
@@ -15,10 +16,21 @@ def info_split(info, item, kw):
 # kw继续传递到info_splited中，决定排序的依据,notsave在此处决定是否把图形保存到文件
 def info_draw(info, item, title=None, **kw):
     info_splited = info_split(info, item, kw)
+    def findnames(name):
+        names=[]
+        for onename in info_splited.index:
+            if re.search(name, onename,re.IGNORECASE):
+                names.append(onename)
+        return names
+    list0=findnames('new york')
+    print(list0)
+
     if 'merge' in kw:
         def merge_city():
+            nonlocal info_splited
             info_splited['New York']+=info_splited['New York City']+info_splited['New York, NY']
-            nsplt=info_splited.drop('New York, NY').drop('New York City')
+            info_splited=info_splited.drop('New York City')
+
         switch_dict={
             'city': merge_city()
         }
