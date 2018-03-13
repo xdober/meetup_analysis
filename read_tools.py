@@ -11,43 +11,57 @@ def info_split(info, item, kw):
             return info[item].value_counts().sort_index()
     return info[item].value_counts()
 
-
-# 统计每个item取值的数量，并画出柱形图
-# kw继续传递到info_splited中，决定排序的依据,notsave在此处决定是否把图形保存到文件
-def info_draw(info, item, title=None, **kw):
-    info_splited = info_split(info, item, kw)
+# 按照item将info分类计数，如果merges不为[]则需要合并含有相同关键词的项
+# return 类型为Series[name, count]
+def info_split_merge(info, item, merges=[], **kw):
+    info_splited=info_split(info, item, kw)
+    ninfo_splited=info_splited
     def findnames(name):
         names=[]
         for onename in info_splited.index:
             if re.search(name, onename,re.IGNORECASE):
                 names.append(onename)
         return names
-    list0=findnames('new york')
-    print(list0)
 
     if 'merge' in kw:
-        def merge_city():
-            nonlocal info_splited
-            info_splited['New York']+=info_splited['New York City']+info_splited['New York, NY']
-            info_splited=info_splited.drop('New York City')
+        ninfo_splited = pd.Series([], [])
+        def merge_cities(cities):
+            nonlocal ninfo_splited
+            for one_city in cities:
+                merge_one_city(one_city)
+            ninfo_splited=ninfo_splited.sort_values(ascending=False)
+        def merge_one_city(city_name):
+            nonlocal info_splited, ninfo_splited
+            lists=findnames(city_name)
+            num=0
+            for item in lists:
+                num+=info_splited[item]
+                info_splited=info_splited.drop(item)
+            ninfo_splited=ninfo_splited.append(pd.Series([num],index=[city_name]))
 
         switch_dict={
-            'city': merge_city()
+            'city': merge_cities(merges)
         }
         switch_dict.get(kw['merge'])
+    return ninfo_splited
 
+
+# 根据给定的Series画出柱形图
+# ninfo_splited为Series对象，其index为name, value为int; title为标题/文件名
+# **kw中notsave在此处决定是否把图形保存到文件，rotation决定x轴坐标文字的旋转角度（逆时针）
+def info_draw(ninfo_splited, title, **kw):
     fig_tmp = plt.figure()
-    wid = len(info_splited) * 1.6
+    wid = len(ninfo_splited) * 1.6
     left = 2.5 / wid
     fig_tmp.set_size_inches(wid, 10.5)
     axes_tmp = fig_tmp.add_axes([min(0.1, left), 0.1, 0.9 - min(0.1, left), 0.8])
-    if not title:
-        title = item
     axes_tmp.set_title(title)
-    info_splited.plot.bar()
+    ninfo_splited.plot.bar()
     plt.xticks(rotation='0')
-    maxy = info_splited.max() / 50
-    for x, y in zip(arange(len(info_splited)), info_splited):
+    maxy = ninfo_splited.max() / 50
+    if 'rotation' in kw:
+        plt.xticks(rotation=kw['rotation'])
+    for x, y in zip(arange(len(ninfo_splited)), ninfo_splited):
         plt.text(x, y + maxy, '%d' % y, va='center', ha='center')
     if 'notsave' not in kw:
         plt.savefig('images/%s.pdf' % title, dpi=72, format='pdf')
@@ -58,10 +72,11 @@ def info_draw(info, item, title=None, **kw):
 # kw中gap项决定分割的间隔，默认一年，若gap='month',则是一个月
 # kw中created项决定使用哪一组数据，默认为'created'下标的一组
 # kw中rotation项确定了横坐标系的文本旋转角度
-def info_groupedby_created(gap, created, rotation, info, **kw):
+# def info_groupedby_created(gap, created, rotation, info, **kw):
+def info_groupedby_created(info,**kw):
     gapp = pd.to_datetime(info.created).dt.year
     if 'gap' in kw:
-        if gap == 'month':
+        if kw['gap'] == 'month':
             gapp = [pd.to_datetime(info.created).dt.year, pd.to_datetime(info.created).dt.month]
     created = 'created'
     if 'created' in kw:
@@ -75,7 +90,7 @@ def info_groupedby_created(gap, created, rotation, info, **kw):
     axes_tmp.set_title('%s number per year' % info.columns[0])
     info_created.plot.bar()
     if 'rotation' in kw:
-        plt.xticks(rotation=rotation)
+        plt.xticks(rotation=kw['rotation'])
     for x, y in zip(np.arange(len(info_created)), info_created):
         plt.text(x, y + heigh, '%d' % y, ha='center', va='center')
     plt.savefig('images/%s number per year.pdf' % info.columns[0], dpi=72, format='pdf')
