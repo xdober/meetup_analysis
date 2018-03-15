@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from constant import Const
 from pylab import *
 
+
 # kw中如果order项值为index，则按照index排序，否则按value排序
 def info_split(info, item, kw):
     if 'order' in kw:
@@ -11,35 +12,39 @@ def info_split(info, item, kw):
             return info[item].value_counts().sort_index()
     return info[item].value_counts()
 
+
 # 按照item将info分类计数，如果merges不为[]则需要合并含有相同关键词的项
 # return 类型为Series[name, count]
 def info_split_merge(info, item, merges=[], **kw):
-    info_splited=info_split(info, item, kw)
-    ninfo_splited=info_splited
+    info_splited = info_split(info, item, kw)
+    ninfo_splited = info_splited
+
     def findnames(name):
-        names=[]
+        names = []
         for onename in info_splited.index:
-            if re.search(name, onename,re.IGNORECASE):
+            if re.search(name, onename, re.IGNORECASE):
                 names.append(onename)
         return names
 
     if 'merge' in kw:
         ninfo_splited = pd.Series([], [])
+
         def merge_cities(cities):
             nonlocal ninfo_splited
             for one_city in cities:
                 merge_one_city(one_city)
-            ninfo_splited=ninfo_splited.sort_values(ascending=False)
+            ninfo_splited = ninfo_splited.sort_values(ascending=False)
+
         def merge_one_city(city_name):
             nonlocal info_splited, ninfo_splited
-            lists=findnames(city_name)
-            num=0
+            lists = findnames(city_name)
+            num = 0
             for item in lists:
-                num+=info_splited[item]
-                info_splited=info_splited.drop(item)
-            ninfo_splited=ninfo_splited.append(pd.Series([num],index=[city_name]))
+                num += info_splited[item]
+                info_splited = info_splited.drop(item)
+            ninfo_splited = ninfo_splited.append(pd.Series([num], index=[city_name]))
 
-        switch_dict={
+        switch_dict = {
             'city': merge_cities(merges)
         }
         switch_dict.get(kw['merge'])
@@ -68,12 +73,31 @@ def info_draw(ninfo_splited, title, **kw):
     return fig_tmp
 
 
+# 画多个柱
+def info_multi_draw(info, title, **kw):
+    fig_tmp = plt.figure()
+    axes_tmp = fig_tmp.add_axes([0.1, 0.1, 0.8, 0.8])
+    width = 0.25
+    axes_tmp.set_title(title)
+    x = np.arange(len(info))
+    yn = len(info.columns)
+    ys = []
+    for i in range(0, yn):
+        ys.append(info.ix[:, i])
+        axes_tmp.bar(x + width * i, ys[i], width)
+    axes_tmp.set_xticks(x + width)
+    axes_tmp.set_xticklabels(info.index)
+    if 'rotation' in kw:
+        plt.xticks(rotation=kw['rotation'])
+    return fig_tmp
+
+
 # 按照创建时间分组并画图
 # kw中gap项决定分割的间隔，默认一年，若gap='month',则是一个月
 # kw中created项决定使用哪一组数据，默认为'created'下标的一组
 # kw中rotation项确定了横坐标系的文本旋转角度
 # def info_groupedby_created(gap, created, rotation, info, **kw):
-def info_groupedby_created(info,**kw):
+def info_groupedby_created(info, **kw):
     gapp = pd.to_datetime(info.created).dt.year
     if 'gap' in kw:
         if kw['gap'] == 'month':
@@ -141,10 +165,10 @@ class DataInfo(object):
         self.attrs_number = len(self.attrs)
 
     def to_excsv(self, PATH, **kw):
-        item=self.attrs[0]
+        item = self.attrs[0]
         if 'item' in kw:
-            item=kw['item']
-        simple=pd.read_csv(Const.SIMPLE_PATH)
+            item = kw['item']
+        simple = pd.read_csv(Const.SIMPLE_PATH)
         if not (item in simple['item'].values):
             df = pd.DataFrame(columns=['a', 'b', 'c', 'd'])
             df.loc[0] = {'a': item, 'b': self.length, 'c': self.attrs_number, 'd': self.attrs}
