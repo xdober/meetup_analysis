@@ -85,7 +85,11 @@ def info_multi_draw(info, title, **kw):
     for i in range(0, yn):
         ys.append(info.ix[:, i])
         axes_tmp.bar(x + width * i, ys[i], width)
-    axes_tmp.set_xticks(x + width)
+        print(ys[i])
+        for xx,y in zip(arange(len(info)),ys[i].values):
+            print(y)
+            plt.text(xx+width*i,y,'%d' % y,va='center', ha='center')
+    axes_tmp.set_xticks(x + width*(yn-1)/2)
     axes_tmp.set_xticklabels(info.index)
     if 'rotation' in kw:
         plt.xticks(rotation=kw['rotation'])
