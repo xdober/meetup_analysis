@@ -76,8 +76,11 @@ def info_draw(ninfo_splited, title, **kw):
 # 画多个柱
 def info_multi_draw(info, title, **kw):
     fig_tmp = plt.figure()
-    axes_tmp = fig_tmp.add_axes([0.1, 0.1, 0.8, 0.8])
-    width = 0.25
+    wid = len(info) * 1.6
+    left = 2.5 / wid
+    fig_tmp.set_size_inches(wid, 10.5)
+    axes_tmp = fig_tmp.add_axes([min(0.1, left), 0.1, 0.9 - min(0.1, left), 0.8])
+    width = 0.35
     axes_tmp.set_title(title)
     x = np.arange(len(info))
     yn = len(info.columns)
@@ -85,14 +88,15 @@ def info_multi_draw(info, title, **kw):
     for i in range(0, yn):
         ys.append(info.ix[:, i])
         axes_tmp.bar(x + width * i, ys[i], width)
-        print(ys[i])
+        maxy = ys[i].max() / 50
         for xx,y in zip(arange(len(info)),ys[i].values):
-            print(y)
-            plt.text(xx+width*i,y,'%d' % y,va='center', ha='center')
+            plt.text(xx+width*i,y+maxy,'%d' % y,va='center', ha='center')
     axes_tmp.set_xticks(x + width*(yn-1)/2)
     axes_tmp.set_xticklabels(info.index)
     if 'rotation' in kw:
         plt.xticks(rotation=kw['rotation'])
+    if 'notsave' not in kw:
+        plt.savefig('images/%s.pdf' % title, dpi=72, format='pdf')
     return fig_tmp
 
 
