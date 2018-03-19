@@ -11,6 +11,8 @@ class Const:
     GROUP_PER_MEMBER = 'result/group_number_per_member.csv'
     MEMBER_PER_GROUP = 'result/member_per_group.csv'
     SIMPLE_PATH = 'result/simple.csv'
+    E_M_GROUP_PATH= 'result/event_member_per_group.csv'
+    E_M_CATE_PATH = 'result/event_member_per_category.csv'
 
     class ConstError(TypeError):
         pass
