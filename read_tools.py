@@ -31,6 +31,7 @@ def info_split_merge(info, item, merges=[], **kw):
 
         def merge_cities(cities):
             nonlocal ninfo_splited
+            print(cities)
             for one_city in cities:
                 merge_one_city(one_city)
             ninfo_splited = ninfo_splited.sort_values(ascending=False)
@@ -43,11 +44,14 @@ def info_split_merge(info, item, merges=[], **kw):
                 num += info_splited[item]
                 info_splited = info_splited.drop(item)
             ninfo_splited = ninfo_splited.append(pd.Series([num], index=[city_name]))
+            print('merged %s: %d' % (city_name ,num))
 
         switch_dict = {
-            'city': merge_cities(merges)
+            'city': merge_cities,
+            'who': merge_cities
         }
-        switch_dict.get(kw['merge'])
+
+        switch_dict.get(kw['merge'])(merges)
     return ninfo_splited
 
 
