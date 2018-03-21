@@ -31,9 +31,13 @@ events_info = pd.read_csv(Const.EVENT_PATH)
 # event_city_ser=rd.info_split_merge(events_info,'venue.city',cities,merge='cities')
 # event_city_fig=rd.info_draw(event_city_ser,'event per city')
 
-# who join the most events
-whos=['Artist', 'Member', 'Toastmaster', 'Reader']
-event_who_series=rd.info_split_merge(events_info,'group.who',whos,merge='who')
-event_who_fig = rd.info_draw(event_who_series, 'events number per who join', notsave='yes')
+# # who join the most events
+# whos=['Artist', 'Toastmaster', 'Reader','women','school']
+# event_who_series=rd.info_split_merge(events_info,'group.who',whos,merge='who')
+# event_who_fig = rd.info_draw(event_who_series, 'events number per who join', notsave='yes')
+
+# 同一类别中event数量与group人数的关系
+Arts_group=groups_info[groups_info['category_id']==1]
+print(Arts_group.head())
 
 plt.show()
