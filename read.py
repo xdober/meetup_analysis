@@ -25,12 +25,12 @@ def info_split(info, item):
 def info_draw(info, item, title=None):
     info_splited = info_split(info, item)
     fig_tmp = plt.figure()
-    wid=len(info_splited)*1.6
-    left=10.5/wid
-    fig_tmp.set_size_inches(wid,10.5)
-    axes_tmp = fig_tmp.add_axes([min(0.1,left), 0.1, 0.9-min(0.1,left), 0.8])
-    if not title :
-        title=item
+    wid = len(info_splited) * 1.6
+    left = 10.5 / wid
+    fig_tmp.set_size_inches(wid, 10.5)
+    axes_tmp = fig_tmp.add_axes([min(0.1, left), 0.1, 0.9 - min(0.1, left), 0.8])
+    if not title:
+        title = item
     axes_tmp.set_title(title)
     info_splited.plot.bar()
     plt.xticks(rotation='0')
@@ -48,14 +48,14 @@ city_attr_num = city_info.shape[1]
 # city_split = city_info['state'].value_counts()
 # 每个州中城市的个数
 # city_split.plot.bar()
-city_state_fig=info_draw(city_info,'state','cities number per state')
+city_state_fig = info_draw(city_info, 'state', 'cities number per state')
 #
 # # 城市在坐标系中的位置
 x = city_info[city_attributes[4]]
 y = city_info[city_attributes[6]]
 fig0 = plt.figure()
 axes0 = fig0.add_axes([0.1, 0.1, 0.8, 0.8])
-axes0.scatter(x, y, s=35,label='cities',alpha='0.2')
+axes0.scatter(x, y, s=35, label='cities', alpha='0.2')
 axes0.legend(loc='upper left')
 axes0.set_xlabel('latitude')
 axes0.set_ylabel('longitude')
@@ -82,7 +82,7 @@ group_attrs = group_info.columns
 #     plt.text(x + 1, y + 80, '%d' % y, ha='center', va='center')
 #     plt.text(x + 1, -400, z, ha='center', va='center', rotation=15)
 #
-group_city_fig=info_draw(group_info,'city','groups number per city')
+group_city_fig = info_draw(group_info, 'city', 'groups number per city')
 plt.xticks(rotation='15')
 # # groups per category
 # group_split_category = info_split(group_info, 'category.shortname')
@@ -94,19 +94,19 @@ plt.xticks(rotation='15')
 # for x, y, z in zip(np.arange(len(group_split_category)), group_split_category, group_split_category._index):
 #     plt.text(x + 1, y + 80, '%d' % y, ha='center', va='center')
 #     plt.text(x + 1, -400, z, ha='center', va='center', rotation=60)
-group_category_fig=info_draw(group_info,'category.shortname','groups number per category')
+group_category_fig = info_draw(group_info, 'category.shortname', 'groups number per category')
 plt.xticks(rotation='30')
 
 # groupby rating
-ranges = np.arange(0,5.5,0.5)
-group_rating=group_info['group_id'].groupby(pd.cut(group_info.rating, ranges)).count()
-fig3=plt.figure()
-wid3=len(group_rating)*1.6
-fig3.set_size_inches(wid3,10.5)
-axes3=fig3.add_axes([0.1,0.2,0.8,0.7])
+ranges = np.arange(0, 5.5, 0.5)
+group_rating = group_info['group_id'].groupby(pd.cut(group_info.rating, ranges)).count()
+fig3 = plt.figure()
+wid3 = len(group_rating) * 1.6
+fig3.set_size_inches(wid3, 10.5)
+axes3 = fig3.add_axes([0.1, 0.2, 0.8, 0.7])
 axes3.set_title('groups number per rating')
-for x,y in zip(np.arange(len(group_rating)), group_rating):
-    plt.text(x, y+200, '%d' % y, ha='center', va='center')
+for x, y in zip(np.arange(len(group_rating)), group_rating):
+    plt.text(x, y + 200, '%d' % y, ha='center', va='center')
 group_rating.plot.bar()
 plt.xticks(rotation='0')
 plt.savefig('images/groups number per rating.pdf', dpi=72, format='pdf')
@@ -114,8 +114,8 @@ plt.savefig('images/groups number per rating.pdf', dpi=72, format='pdf')
 # groupby created date
 group_created = group_info['group_id'].groupby(pd.to_datetime(group_info.created).dt.year).count()
 fig4 = plt.figure()
-wid4=len(group_created)*1.6
-fig4.set_size_inches(wid4,10.5)
+wid4 = len(group_created) * 1.6
+fig4.set_size_inches(wid4, 10.5)
 axes4 = fig4.add_axes([0.1, 0.1, 0.8, 0.8])
 axes4.set_title('groups number per year')
 group_created.plot.bar()
@@ -128,34 +128,34 @@ plt.savefig('images/groups number per year.pdf', dpi=72, format='pdf')
 group_state_fig = info_draw(group_info, 'state', 'groups number per state')
 
 # groups' location
-lats=group_info['lat']
-lons=group_info['lon']
-fig5=plt.figure()
-axes5=fig5.add_axes([0.1,0.1,0.8,0.8])
-axes5.scatter(lats,lons,label='groups', s=10, alpha=0.02,linewidths=0)
+lats = group_info['lat']
+lons = group_info['lon']
+fig5 = plt.figure()
+axes5 = fig5.add_axes([0.1, 0.1, 0.8, 0.8])
+axes5.scatter(lats, lons, label='groups', s=10, alpha=0.02, linewidths=0)
 axes5.legend(loc='upper left')
-axes5.set_title('groups\' location' )
+axes5.set_title('groups\' location')
 axes5.set_xlabel('latitude')
 axes5.set_ylabel('longitude')
 plt.savefig('images/groups\' location.pdf', dpi=72, format='pdf')
 
 # organizer
-group_org=info_split(group_info,'organizer.member_id')
+group_org = info_split(group_info, 'organizer.member_id')
 print(group_org.head())
 
 # who
-group_who=info_split(group_info,'who')
+group_who = info_split(group_info, 'who')
 print(group_who.head())
 
 # join_mode
-group_join_mode=info_split(group_info,'join_mode')
-group_join_mode_fig=info_draw(group_info,'join_mode', 'group join mode')
+group_join_mode = info_split(group_info, 'join_mode')
+group_join_mode_fig = info_draw(group_info, 'join_mode', 'group join mode')
 
 # visibility
-group_visiblity_fig=info_draw(group_info,'visibility','group visibility')
+group_visiblity_fig = info_draw(group_info, 'visibility', 'group visibility')
 
 # state
-group_state_fig=info_draw(group_info,'state', 'group per state')
+group_state_fig = info_draw(group_info, 'state', 'group per state')
 
 # plt.show()
 

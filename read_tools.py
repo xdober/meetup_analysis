@@ -31,7 +31,7 @@ def info_split_merge(info, item, merges=[], **kw):
 
         def merge_cities(cities):
             nonlocal ninfo_splited
-            print(cities)
+            # print(cities)
             for one_city in cities:
                 merge_one_city(one_city)
             ninfo_splited = ninfo_splited.sort_values(ascending=False)
@@ -44,7 +44,7 @@ def info_split_merge(info, item, merges=[], **kw):
                 num += info_splited[item]
                 info_splited = info_splited.drop(item)
             ninfo_splited = ninfo_splited.append(pd.Series([num], index=[city_name]))
-            print('merged %s: %d' % (city_name ,num))
+            # print('merged %s: %d' % (city_name ,num))
 
         switch_dict = {
             'city': merge_cities,
@@ -93,9 +93,9 @@ def info_multi_draw(info, title, **kw):
         ys.append(info.ix[:, i])
         axes_tmp.bar(x + width * i, ys[i], width)
         maxy = ys[i].max() / 50
-        for xx,y in zip(arange(len(info)),ys[i].values):
-            plt.text(xx+width*i,y+maxy,'%d' % y,va='center', ha='center')
-    axes_tmp.set_xticks(x + width*(yn-1)/2)
+        for xx, y in zip(arange(len(info)), ys[i].values):
+            plt.text(xx + width * i, y + maxy, '%d' % y, va='center', ha='center')
+    axes_tmp.set_xticks(x + width * (yn - 1) / 2)
     axes_tmp.set_xticklabels(info.index)
     if 'rotation' in kw:
         plt.xticks(rotation=kw['rotation'])
@@ -154,6 +154,19 @@ def info_rating(info, **kw):
     plt.savefig('images/%s number per %s.pdf' % (info.columns[0], groupedby), dpi=72, format='pdf')
     return fig_tmp
 
+# 画饼图
+def info_pie(df, ranges, labels, title, **kw):
+    df=pd.DataFrame({'INDEX':df.index,'COUNT':df.values})
+    fig_tmp = plt.figure()
+    axes0 = fig_tmp.add_axes([0.1, 0.1, 0.8, 0.8])
+    dfed = df.groupby(pd.cut(df['INDEX'], ranges)).sum()
+    dfed=dfed.replace(NaN,0)
+    print(dfed)
+    axes0.pie(dfed['COUNT'].values, labels=labels, autopct='%1.1f%%')
+    axes0.set_title(title)
+    if 'notsave' not in kw:
+        plt.savefig('images/%s.pdf' % title, dpi=72, format='pdf')
+    return fig_tmp
 
 # 根据经纬度画散点图
 def info_locations(info, lat, lon):

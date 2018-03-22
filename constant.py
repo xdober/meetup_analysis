@@ -13,6 +13,12 @@ class Const:
     SIMPLE_PATH = 'result/simple.csv'
     E_M_GROUP_PATH= 'result/event_member_per_group.csv'
     E_M_CATE_PATH = 'result/event_member_per_category.csv'
+    ART_EVENT_PATH='result/Arts_event_mean.csv'
+    CAREER_EVENT_PATH='result/Career_event_mean.csv'
+    BOOK_EVENT_PATH='result/Book_event_mean.csv'
+    ART_EVENT_DATA_PATH='result/art_event_data.csv'
+    CAREER_EVENT_DATA_PATH='result/career_event_data.csv'
+    BOOK_EVENT_DATA_PATH='result/book_event_data.csv'
 
     class ConstError(TypeError):
         pass
