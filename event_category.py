@@ -20,8 +20,19 @@ def df_to_ser(df,title):
     duration_fig=du_fig(duration_bar,duration_pie)
     return duration_fig
 
-Art_fig=df_to_ser(Arts_event,'Art')
-Career_fig=df_to_ser(Career_event,'Career')
-Book_fig=df_to_ser(Book_event,'Book')
+def nlen(strr):
+    return len(str(strr))
+
+# average duration per description range
+def average_duration(df,column,ranges):
+    ave=df.groupby(pd.cut(df[column],ranges)).mean()
+    return ave
+# Art_fig=df_to_ser(Arts_event,'Art')
+# Career_fig=df_to_ser(Career_event,'Career')
+# Book_fig=df_to_ser(Book_event,'Book')
+
+Book_event['des_len']=Book_event['description'].map(nlen)
+Book_ave=average_duration(Book_event[['des_len','duration']],'des_len',np.arange(0,7500,100))
+print(Book_ave)
 
 plt.show()
