@@ -19,6 +19,7 @@ class Const:
     ART_EVENT_DATA_PATH='result/art_event_data.csv'
     CAREER_EVENT_DATA_PATH='result/career_event_data.csv'
     BOOK_EVENT_DATA_PATH='result/book_event_data.csv'
+    TOPIC_SUBTOPIC_PATH='result/subTopic and member.csv'
 
     class ConstError(TypeError):
         pass
