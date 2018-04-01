@@ -154,19 +154,21 @@ def info_rating(info, **kw):
     plt.savefig('images/%s number per %s.pdf' % (info.columns[0], groupedby), dpi=72, format='pdf')
     return fig_tmp
 
+
 # 画饼图
 def info_pie(df, ranges, labels, title, **kw):
-    df=pd.DataFrame({'INDEX':df.index,'COUNT':df.values})
+    df = pd.DataFrame({'INDEX': df.index, 'COUNT': df.values})
     fig_tmp = plt.figure()
     axes0 = fig_tmp.add_axes([0.1, 0.1, 0.8, 0.8])
     dfed = df.groupby(pd.cut(df['INDEX'], ranges)).sum()
-    dfed=dfed.replace(NaN,0)
+    dfed = dfed.replace(NaN, 0)
     print(dfed)
     axes0.pie(dfed['COUNT'].values, labels=labels, autopct='%1.1f%%')
     axes0.set_title(title)
     if 'notsave' not in kw:
         plt.savefig('images/%s.pdf' % title, dpi=72, format='pdf')
     return fig_tmp
+
 
 # 根据经纬度画散点图
 def info_locations(info, lat, lon):
@@ -181,6 +183,14 @@ def info_locations(info, lat, lon):
     axes5.set_ylabel('longitude')
     plt.savefig('images/%s\'s location.pdf' % info.columns[0], dpi=72, format='pdf')
     return fig_tmp
+
+
+def to_csv_noindex(df, PATH):
+    df.to_csv(PATH, sep=',', index=False)
+
+
+def to_csv_index(df, PATH):
+    df.to_csv(PATH, sep=',', index=True)
 
 
 class DataInfo(object):
