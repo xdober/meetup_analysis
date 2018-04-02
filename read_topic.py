@@ -13,7 +13,7 @@ tpc_grp_df=pd.DataFrame({'parent_topic_id':tpc_grp_ser.index,'groups':tpc_grp_se
 topic_main_ser=rd.info_split_merge(topic_info,'main_topic_id')
 topic_main_df=pd.DataFrame({'parent_topic_id':topic_main_ser.index,'sub_topics':topic_main_ser.values})
 topic_main_df=pd.merge(topic_main_df,tpc_grp_df,on='parent_topic_id',sort=False)
-topic_main_df=pd.merge(topic_main_df,topic_info,left_on='parent_topic_id',right_on='topic_id')
+topic_main_df=pd.merge(topic_main_df,topic_info,left_on='parent_topic_id',right_on='topic_id').sort_values('groups',ascending=False)
 topic_main_df=topic_main_df[['parent_topic_id','topic_name','members','groups','sub_topics','description','link','urlkey']]
 # topic_main_df.to_csv(Const.TOPIC_SUBTOPIC_PATH,sep=',',index=False)
 topic_main_df=topic_main_df[['topic_name','members','groups','sub_topics']].set_index('topic_name')
