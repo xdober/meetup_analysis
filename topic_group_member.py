@@ -15,4 +15,7 @@ grouped_topic = pd.merge(grouped_topic, topic[['topic_id', 'topic_name', 'urlkey
 # grouped_topic.to_csv(Const.TPC_GRPBY_PATH, sep=',', index=False)
 # rd.to_csv_noindex(grouped_topic_group, Const.TPC_GRP_GRPBY_PATH)
 ngroupby = grouped_topic.groupby(['main_topic_id','topic_name_y']).sum().reset_index().sort_values('group_counts',ascending=False)
-print(ngroupby[['main_topic_id','topic_name_y','group_counts','members']])
+ngroupby=ngroupby[['main_topic_id','topic_name_y','group_counts','members']]
+ngroupby=ngroupby.rename(index=str,columns={'topic_name_y':'topic_name'})
+rd.to_csv_noindex(ngroupby,Const.TPC_GRP_TPC_PATH)
+print(ngroupby)

@@ -5,6 +5,13 @@ from pylab import *
 
 topic_info=pd.read_csv(Const.TOPIC_PATH, encoding="iso-8859-1")
 topic_group_info=pd.read_csv(Const.GRP_TPC_PATH, encoding="iso-8859-1")
+# topic_member_info=pd.read_csv(Const.MMB_TPC_PATH)
+# print(topic_group_info.shape)
+# topic_g_at=rd.DataInfo(topic_group_info)
+# topic_g_at.to_excsv(Const.SIMPLE_PATH,item='topic_group')
+# print(topic_member_info.shape)
+# topic_m_at=rd.DataInfo(topic_member_info)
+# topic_m_at.to_excsv(Const.SIMPLE_PATH,item='topic_member')
 # print(topic_info.shape)
 # topic_at=rd.DataInfo(topic_info)
 # topic_at.to_excsv(Const.SIMPLE_PATH,item='topic')

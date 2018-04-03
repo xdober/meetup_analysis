@@ -22,6 +22,7 @@ class Const:
     TOPIC_SUBTOPIC_PATH = 'result/subTopic and member.csv'
     TPC_GRPBY_PATH = 'result/topic groupby topic.csv'
     TPC_GRP_GRPBY_PATH = 'result/topic groupby topic and group.csv'
+    TPC_GRP_TPC_PATH = 'result/maintopic groupby topic.csv'
 
     class ConstError(TypeError):
         pass
