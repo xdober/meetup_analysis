@@ -23,6 +23,7 @@ class Const:
     TPC_GRPBY_PATH = 'result/topic groupby topic.csv'
     TPC_GRP_GRPBY_PATH = 'result/topic groupby topic and group.csv'
     TPC_GRP_TPC_PATH = 'result/maintopic groupby topic.csv'
+    CATE_TOPIC_PATH = 'result/groups number per category per main topic.csv'
 
     class ConstError(TypeError):
         pass
