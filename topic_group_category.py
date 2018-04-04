@@ -24,7 +24,9 @@ groupby_topic=group_topic.groupby(['main_topic_id'])
 gb=[groupby_topic.get_group(x) for x in groupby_topic.groups]
 for x in range(0,len(gb)):
     gb[x]=gbgbcate(gb[x])
-print(gb[0])
-writer=pd.ExcelWriter('result/tmp.xlsx',engine='xlsxwriter')
-gb[0].to_excel(writer)
-writer.save()
+gb=pd.concat(gb)
+gb.index.names=['main_topic_name', 'No.']
+# 保存到excel
+# writer=pd.ExcelWriter('result/tmp.xlsx',engine='xlsxwriter')
+# gb.to_excel(writer)
+# writer.save()
