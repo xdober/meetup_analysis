@@ -8,6 +8,7 @@ class Const:
     MEMBER_PATH = 'data/members.csv'
     MMB_TPC_PATH = 'data/members_topics.csv'
     VENUE_PATH = 'data/venues.csv'
+    REAL_MEMBER_PATH='data/real_members.csv'
     GROUP_PER_MEMBER = 'result/group_number_per_member.csv'
     MEMBER_PER_GROUP = 'result/member_per_group.csv'
     SIMPLE_PATH = 'result/simple.csv'
