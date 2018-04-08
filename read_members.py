@@ -7,7 +7,8 @@ member_info = pd.read_csv(Const.MEMBER_PATH, encoding="iso-8859-1")
 member_group_at = rd.DataInfo(member_info)
 member_group_at.to_excsv(Const.SIMPLE_PATH,item='member_join_group')
 
-member_fact=member_info.iloc[:, 0:5].drop_duplicates()
+member_fact=member_info.iloc[:, [0,2,3,4]].drop_duplicates()
+member_fact.to_csv('data/real_members.csv',index=False)
 member_at = rd.DataInfo(member_fact)
 member_at.to_excsv(Const.SIMPLE_PATH,item='member')
 
@@ -16,8 +17,7 @@ member_at.to_excsv(Const.SIMPLE_PATH,item='member')
 # attrs_number_per_record=[member_at.attrs_number]
 # attrs=[member_at.attrs]
 # df = pd.DataFrame(columns=['item', 'records_number', 'attrs_number_per_record', 'attrs'])
-# df.loc[len(df)] = {'item': 'member', 'records_number': member_at.length,
-#                    'attrs_number_per_record': member_at.attrs_number, 'attrs': member_at.attrs}
+# df.loc[len(df)] = {'item': 'member', 'records_number': member_at.length,'attrs_number_per_record': member_at.attrs_number, 'attrs': member_at.attrs}
 # print(member_at.attrs)
 # df.to_csv('result/simple.csv', sep=',', index=False)
 
