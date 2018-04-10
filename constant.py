@@ -27,6 +27,7 @@ class Const:
     CATE_TOPIC_PATH = 'result/groups number per category per main topic.csv'
     TPC_GRP_NUM_MEM = 'result/topic and group number per member.csv'
     MEM_JOIN_GRP_TINY = 'data/member_join_group_tiny.csv'
+    MEM_TPC_TINY = 'data/member_topic_tiny.csv'
 
     class ConstError(TypeError):
         pass
