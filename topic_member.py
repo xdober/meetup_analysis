@@ -113,7 +113,7 @@ def topicDetailMember():
     writer.save()
 
 # tinyDeal()
-selectMember()
-selectMemberTopic()
+# selectMember()
+# selectMemberTopic()
 dealGroupsCategoryPerMember()
 topicDetailMember()

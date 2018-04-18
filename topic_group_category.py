@@ -8,10 +8,17 @@ group = pd.read_csv(Const.GROUP_PATH)
 topic = pd.read_csv(Const.TOPIC_PATH, encoding="iso-8859-1")
 
 # 把一个maintopic下的群组按照category分类，并返回Series序列
+def calcAttraction(xs,sum):
+    llist=[]
+    for x in xs:
+        llist.append(x/sum)
+    return llist
 def gbgbcate(df):
     nGB=rd.info_split_merge(df,'category.shortname')
     nGB.name=df['topic_name'].values[0]
-    nGB=pd.DataFrame({'main_topic_name':nGB.name,'category':nGB.index,'counts':nGB.values})
+    SSUM=nGB.values.sum()
+    attrs=calcAttraction(nGB.values,SSUM)
+    nGB=pd.DataFrame({'main_topic_name':nGB.name,'category':nGB.index,'counts':nGB.values,'attraction':attrs})
     nGB=nGB.set_index('main_topic_name',append=True).swaplevel(0,1)
     return nGB
 # 试图分析每一个main_topic的关联群组中category的关系
@@ -27,6 +34,6 @@ for x in range(0,len(gb)):
 gb=pd.concat(gb)
 gb.index.names=['main_topic_name', 'No.']
 # 保存到excel
-# writer=pd.ExcelWriter('result/tmp.xlsx',engine='xlsxwriter')
-# gb.to_excel(writer)
-# writer.save()
+writer=pd.ExcelWriter('result/tmp.xlsx',engine='xlsxwriter')
+gb.to_excel(writer)
+writer.save()
