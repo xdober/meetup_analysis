@@ -30,6 +30,9 @@ class Const:
     MEM_JOIN_GRP_MID = 'data/member_join_group.csv'
     MEM_NO_DUMP = 'data/members_no_dump.csv'
     MEM_TPC_TINY = 'data/member_topic_tiny.csv'
+    MEM_GRP_CHI='data/member_group_chicago.csv'
+    MEM_GRP_NY='data/member_group_new_york.csv'
+    MEM_GRP_SF='data/member_group_san_francisco.csv'
 
     class ConstError(TypeError):
         pass
