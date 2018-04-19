@@ -99,7 +99,12 @@ class Member():
         str=str+'ID: %d\n' %(self.id)
         str=str+'vector: %s\n' %(self.vector)
         return str
-
+class City():
+    def __init__(self,city_name):
+        self.members=[]
+        self.means=[]
+        self.name=city_name
+        self.allMean=0
 
 # n维夹角余弦
 def cosn(a, b):
@@ -110,26 +115,9 @@ def cosn(a, b):
         sum3 += b[i] ** 2
     cos = sum1 / (np.sqrt(sum2) * np.sqrt(sum3))
     return cos
-def calTwoSimi(vecA,vecB):
-    return cosn(vecA.vector,vecB.vector)
-# 计算会员之间的相似度
-def rread_xlsx(PATH):
-    df=pd.read_excel(PATH)
-    df['member_id']=pd.Series(df['member_id'].fillna(method='ffill'))
-    return df
-def dealMemberSimilarity():
-    chi_p='result/group_counts_percate_per_member_chicago.xlsx'
-    sf_p='result/group_counts_percate_per_member_san_francisco.xlsx'
-    ny_p='result/group_counts_percate_per_member_new_york.xlsx'
-    mem_chi=rread_xlsx(chi_p)
-    memgb=mem_chi.groupby('member_id')
-    memgb=[memgb.get_group(x) for x in memgb.groups]
-    members=[]
-    for df in memgb:
-        tempMem=Member(df['member_id'].values[0])
-        tempMem.vector=df['counts'].values
-        tempMem.city='Chicago Area'
-        members.append(tempMem)
+def calTwoSimi(memA, memB):
+    return cosn(memA.vector, memB.vector)
+def calMultSimi(members):
     similarities=[]
     for veci in members:
         line=[]
@@ -137,10 +125,39 @@ def dealMemberSimilarity():
             simi=calTwoSimi(veci,vecj)
             line.append(simi)
         similarities.append(line)
-    for row in similarities:
-
-        print(row)
-        print('\n')
+    return similarities
+# 计算会员之间的相似度
+def rread_xlsx(PATH):
+    df=pd.read_excel(PATH)
+    df['member_id']=pd.Series(df['member_id'].fillna(method='ffill'))
+    return df
+def dealMemberSimilarityOneCity(city_name):
+    city_p='result/group_counts_percate_per_member_'+city_name+'.xlsx'
+    mem_chi=rread_xlsx(city_p)
+    memgb=mem_chi.groupby('member_id')
+    memgb=[memgb.get_group(x) for x in memgb.groups]
+    members=[]
+    for df in memgb:
+        tempMem=Member(df['member_id'].values[0])
+        tempMem.vector=df['counts'].values
+        tempMem.city=city_name+' Area'
+        members.append(tempMem)
+    similarities=calMultSimi(members)
+    average=np.mean(similarities)
+    tempCity=City(city_name)
+    tempCity.members=members
+    tempCity.means=similarities
+    tempCity.allMean=average
+    return tempCity
+def dealMemberSimilarity():
+    CHI_city=dealMemberSimilarityOneCity('chicago')
+    NY_city=dealMemberSimilarityOneCity('new_york')
+    SF_city=dealMemberSimilarityOneCity('san_francisco')
+    print(CHI_city.allMean,NY_city.allMean,SF_city.allMean)
+    mixMem=CHI_city.members[0:7]+NY_city.members[0:7]+SF_city.members[0:7]
+    chi_ny_simi=calMultSimi(mixMem)
+    ave=np.mean(chi_ny_simi)
+    print(ave)
 # saveRealMembers()
 # testMember()
 # saveCityMember()
