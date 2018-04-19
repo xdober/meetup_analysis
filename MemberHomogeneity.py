@@ -1,5 +1,6 @@
 import pandas as pd
 import read_tools as rd
+import numpy as np
 from constant import Const
 
 # 保存真正的members
@@ -98,6 +99,19 @@ class Member():
         str=str+'ID: %d\n' %(self.id)
         str=str+'vector: %s\n' %(self.vector)
         return str
+
+
+# n维夹角余弦
+def cosn(a, b):
+    sum1 = sum2 = sum3 = 0
+    for i in range(len(a)):
+        sum1 += a[i] * b[i]
+        sum2 += a[i] ** 2
+        sum3 += b[i] ** 2
+    cos = sum1 / (np.sqrt(sum2) * np.sqrt(sum3))
+    return cos
+def calTwoSimi(vecA,vecB):
+    return cosn(vecA.vector,vecB.vector)
 # 计算会员之间的相似度
 def rread_xlsx(PATH):
     df=pd.read_excel(PATH)
@@ -116,7 +130,17 @@ def dealMemberSimilarity():
         tempMem.vector=df['counts'].values
         tempMem.city='Chicago Area'
         members.append(tempMem)
-    print(members[0].toString())
+    similarities=[]
+    for veci in members:
+        line=[]
+        for vecj in members:
+            simi=calTwoSimi(veci,vecj)
+            line.append(simi)
+        similarities.append(line)
+    for row in similarities:
+
+        print(row)
+        print('\n')
 # saveRealMembers()
 # testMember()
 # saveCityMember()
