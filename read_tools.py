@@ -129,7 +129,8 @@ def info_groupedby_created(info, **kw):
         plt.xticks(rotation=kw['rotation'])
     for x, y in zip(np.arange(len(info_created)), info_created):
         plt.text(x, y + heigh, '%d' % y, ha='center', va='center')
-    plt.savefig('images/%s number per year.pdf' % info.columns[0], dpi=72, format='pdf')
+    if 'notsave' not in kw:
+        plt.savefig('images/%s number per year.pdf' % info.columns[0], dpi=72, format='pdf')
     return fig_tmp
 
 
