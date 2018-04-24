@@ -110,13 +110,14 @@ def info_multi_draw(info, title, **kw):
 # kw中rotation项确定了横坐标系的文本旋转角度
 # def info_groupedby_created(gap, created, rotation, info, **kw):
 def info_groupedby_created(info, **kw):
-    gapp = pd.to_datetime(info.created).dt.year
-    if 'gap' in kw:
-        if kw['gap'] == 'month':
-            gapp = [pd.to_datetime(info.created).dt.year, pd.to_datetime(info.created).dt.month]
     created = 'created'
     if 'created' in kw:
-        created = created
+        created = kw[created]
+    gapp = pd.to_datetime(info[created]).dt.year
+    if 'gap' in kw:
+        if kw['gap'] == 'month':
+            gapp = [pd.to_datetime(info[created]).dt.year, pd.to_datetime(info[created]).dt.month]
+    print(created)
     info_created = info[created].groupby(gapp).count()
     fig_tmp = plt.figure()
     wid = len(info_created) * 1.6

@@ -1,5 +1,6 @@
 class Const:
     EVENT_PATH = 'data/events.csv'
+    EVENT_SIMP_PATH = 'data/event_simple.csv'
     GROUP_PATH = 'data/groups.csv'
     CITY_PATH = 'data/cities.csv'
     CTGY_PATH = 'data/categories.csv'
