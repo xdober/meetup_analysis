@@ -75,7 +75,7 @@ def memberGroup():
 
 # 把不同城市的member——join——group存到不同的文件中
 def saveCityMember():
-    mem_grp_info=pd.read_csv(Const.MEMBER_PATH, encoding="iso-8859-1")[['member_id', 'city', 'group_id']]
+    mem_grp_info=pd.read_csv(Const.MEMBER_PATH, encoding="iso-8859-1")[['member_id', 'city', 'group_id', 'joined', 'visited']]
     mem_grp_chicago=mem_grp_info.loc[mem_grp_info.iloc[:,1].str.contains(r'(.*)[C|c]hicago(.*)')]
     mem_grp_NY=mem_grp_info.loc[mem_grp_info.iloc[:,1].str.contains(r'(.*)[N|n]ew [Y|y]ork(.*)')]
     mem_grp_SF=mem_grp_info.loc[mem_grp_info.iloc[:,1].str.contains(r'(.*)[S|s]an [F|f]rancisco(.*)')]
