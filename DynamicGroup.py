@@ -42,6 +42,7 @@ def dealGroup():
     plt.plot(group_series[1])
     plt.show()
 
+
 # group创建时间与member数量的走势
 def groupCreatedMembers():
     group_info=pd.read_csv(Const.GROUP_PATH)[['group_id', 'category.shortname', 'city', 'created', 'members', 'rating']]
@@ -52,20 +53,31 @@ def groupCreatedMembers():
     print(group_info.head(20))
     print(len(group_info))
 
+class Group():
+    def __init__(self,ID):
+        self.id=ID
+        self.members=0
+        self.records=None
+        self.start=pd.to_datetime('20000101')
+        self.end=pd.to_datetime('20000101')
+        self.trendsSer=None
 # 统计在某个时间点之前的数量
-def beforeTime(df,tm):
+def beforeTime(df,tm,dur):
+    delta=pd.to_datetime('20110201')-pd.to_datetime('20110101')
     ndf=df[df['joined']<tm]
+    if dur:
+        ndf=ndf[(tm-ndf['joined'])<delta]
     return len(ndf)
 # group中member随时间的变化
 # df:group_id相同的member_join_group数据
-def memberTrendsOneGroup(df):
+def memberTrendsOneGroup(df,dur=False):
     num_ser=[]
     start_time=df['joined'].min()
     end_time=df['joined'].max()
     now=df['joined'].min()
-    gap=pd.to_datetime('20110105')-pd.to_datetime('20110101')
+    gap=pd.to_datetime('20110102')-pd.to_datetime('20110101')
     while (now<=end_time):
-        num=beforeTime(df,now)
+        num=beforeTime(df,now,dur)
         num_ser.append(num)
         now=now+gap
     num_ser=pd.Series(data=num_ser,index=pd.date_range(start_time,periods=len(num_ser)))
@@ -73,32 +85,62 @@ def memberTrendsOneGroup(df):
     # plt.plot(num_ser)
     # plt.show()
     return num_ser
+# 自定义排序函数
 def customSortKey(df):
     start=df['joined'].min()
     return start
 def groupMemberTrends():
-    mem_join_group_chi=pd.read_csv(Const.MEM_GRP_CHI)
-    mem_join_group_ny=pd.read_csv(Const.MEM_GRP_NY)
-    mem_join_group_sf=pd.read_csv(Const.MEM_GRP_SF)
-    print(mem_join_group_chi.head())
-    print(mem_join_group_ny.head())
-    print(mem_join_group_sf.head())
-    mem_join_group=pd.concat([mem_join_group_chi,mem_join_group_ny,mem_join_group_sf])
-    group_info=pd.read_csv(Const.GROUP_PATH)[['group_id','members']]
-    mem_join_group_chi['joined']=pd.to_datetime(mem_join_group['joined'])
-    gb=mem_join_group_chi.groupby('group_id')
+    mem_join_group=pd.read_csv(Const.MEMBER_PATH, encoding="iso-8859-1")[['member_id','joined','visited','group_id']]
+    group_info=pd.read_csv(Const.GROUP_PATH)[['group_id','members']].set_index('group_id')
+    mem_join_group['joined']=pd.to_datetime(mem_join_group['joined'])
+    mem_join_group['visited']=pd.to_datetime(mem_join_group['visited'])
+    gb=mem_join_group.groupby('group_id')
     gb=[gb.get_group(x) for x in gb.groups]
-    gb=[item for item in gb if len(item)>2000]
+    gb=[item for item in gb if len(item)>100 and len(item)*1.0/(group_info['members'][item['group_id'].values[0]])>0.99]
     print(len(gb))
     gb.sort(key=lambda x: customSortKey(x))
     num_sers=[]
-    for i in range(0,10):
+    for i in range(0,len(gb)):
         num_sers.append(memberTrendsOneGroup(gb[i]))
+
         plt.plot(num_sers[i])
+    print(num_sers[4])
+    print(num_sers[4].index)
     # print(len(gb[800]))
     # memberTrendsOneGroup(gb[500])
     plt.show()
 
+# 选择需要选取的member，因为member数量太多，这里只选了加入群组数量排名前20的member(先按照city分为三类，每一类选20个)
+def selectMember(MEM_GRP_PATH):
+    member_group_df = pd.read_csv(MEM_GRP_PATH, encoding="iso-8859-1")[['member_id', 'joined', 'visited', 'group_id']]
+    members=member_group_df.groupby('member_id').size().sort_values(ascending=False)
+    member_ids=members.index[0:20]
+    member_group_df = member_group_df[member_group_df['member_id'].isin(member_ids)]
+    rd.to_csv_noindex(member_group_df,MEM_GRP_PATH.split('.')[0]+'_top20.csv')
+def memberGroupTrends():
+    mem_join_group=pd.read_csv(Const.MEMBER_PATH.split('.')[0]+'_top20.csv', encoding="iso-8859-1")[['member_id','joined','visited','group_id']]
+    mem_join_group['joined']=pd.to_datetime(mem_join_group['joined'])
+    mem_join_group['visited']=pd.to_datetime(mem_join_group['visited'])
+    gb=mem_join_group.groupby('member_id')
+    # memGRPs=gb.size()
+    # print(type(memGRPs))
+    # print(memGRPs)
+    # memGRPs=memGRPs[memGRPs>400]
+    # memGRPs=memGRPs.sort_values(ascending=False)
+    # print(memGRPs)
+    gb=[gb.get_group(x) for x in gb.groups]
+    gb.sort(key=lambda x: customSortKey(x))
+    # gb.sort(key=len,reverse=True)
+    num_sers=[]
+    for i in range(0,len(gb)):
+        num_sers.append(memberTrendsOneGroup(gb[i],True))
+
+        plt.plot(num_sers[i])
+    plt.show()
+
+
 # dealGroup()
 # groupCreatedMembers()
-groupMemberTrends()
+# groupMemberTrends()
+# selectMember(Const.MEMBER_PATH)
+memberGroupTrends()
