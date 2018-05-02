@@ -63,10 +63,23 @@ class Group():
         self.trendsSer=None
 # 统计在某个时间点之前的数量
 def beforeTime(df,tm,dur):
-    delta=pd.to_datetime('20110201')-pd.to_datetime('20110101')
+    delta=pd.to_datetime('20110201')-pd.to_datetime('20110121')
     ndf=df[df['joined']<tm]
-    if dur:
-        ndf=ndf[(tm-ndf['joined'])<delta]
+    if True==dur:
+        # ndf0=ndf[(tm-ndf['joined'])<delta]
+        # ndf1=ndf[ndf['visited']>tm]
+        # ndf2=ndf0[ndf0['visited']>tm]
+
+        ndf1 = ndf[ndf['visited']>tm]
+        return len(ndf1)
+
+        ndf0=ndf[(tm-ndf['joined'])<delta]
+        ndf1=ndf[(tm-ndf['visited'])<delta]
+        ndf2=ndf0[(tm-ndf0['visited'])<delta]
+        return (len(ndf1)+len(ndf0)-len(ndf2))
+
+        ndf1 = ndf[(tm - ndf['visited']) < delta]
+        return len(ndf1)
     return len(ndf)
 # group中member随时间的变化
 # df:group_id相同的member_join_group数据
@@ -74,6 +87,23 @@ def memberTrendsOneGroup(df,dur=False):
     num_ser=[]
     start_time=df['joined'].min()
     end_time=df['joined'].max()
+    now=df['joined'].min()
+    gap=pd.to_datetime('20110102')-pd.to_datetime('20110101')
+    while (now<=end_time):
+        num=beforeTime(df,now,dur)
+        num_ser.append(num)
+        now=now+gap
+    num_ser=pd.Series(data=num_ser,index=pd.date_range(start_time,periods=len(num_ser)))
+    # print(num_ser)
+    # plt.plot(num_ser)
+    # plt.show()
+    return num_ser
+# member中group随时间的变化
+# df:member_id相同的member_join_group数据
+def groupTrendsOneMember(df,dur=False):
+    num_ser=[]
+    start_time=df['joined'].min()
+    end_time=df['visited'].max()
     now=df['joined'].min()
     gap=pd.to_datetime('20110102')-pd.to_datetime('20110101')
     while (now<=end_time):
@@ -133,7 +163,7 @@ def memberGroupTrends():
     # gb.sort(key=len,reverse=True)
     num_sers=[]
     for i in range(0,len(gb)):
-        num_sers.append(memberTrendsOneGroup(gb[i],True))
+        num_sers.append(groupTrendsOneMember(gb[i],True))
 
         plt.plot(num_sers[i])
     plt.show()
