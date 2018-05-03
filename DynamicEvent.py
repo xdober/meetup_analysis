@@ -17,7 +17,7 @@ def beforeTime(df,tm,created):
     delta=pd.to_datetime('20110201')-pd.to_datetime('20110101')
     ndf=df[df[created]<tm]
     ndf=ndf[ndf[created]>tm-delta]
-    return len(ndf)/31
+    return len(ndf)/30
 # group中member随时间的变化
 # df:group_id相同的member_join_group数据
 def memberTrendsOneGroup(df,created='created'):
@@ -38,13 +38,50 @@ def dealEvents():
     event_info=pd.read_csv(Const.EVENT_PATH)
     event_info['created']=pd.to_datetime(event_info['created'])
     event_info['event_time']=pd.to_datetime(event_info['event_time'])
-    events_per_group = event_per_group(event_info)
+    event_info['updated']=pd.to_datetime(event_info['updated'])
+    # events_per_group = event_per_group(event_info)
     # event_created_fig = rd.info_groupedby_created(events_per_group[0], gap='month', notsave='yes', created='created')
     # event_start_fig = rd.info_groupedby_created(events_per_group[0], gap='month', notsave='yes', created='event_time')
-    ooo=memberTrendsOneGroup(event_info,'event_time')
-    ggg=memberTrendsOneGroup(event_info)
-    plt.plot(ooo)
-    plt.plot(ggg)
+    Updated=memberTrendsOneGroup(event_info,'updated')
+    Created=memberTrendsOneGroup(event_info)
+    Start=memberTrendsOneGroup(event_info,'event_time')
+    plt.plot(Created)
+    plt.plot(Updated)
+    plt.plot(Start)
+    plt.show()
+
+# 返回一个序列
+def deltaTrends(df,by='created'):
+    ser=pd.Series(data=df['dur'].values/np.timedelta64(1, 'D'),index=df[by])
+    ser=ser.sort_index()
+    sergb=ser.groupby(ser.values)
+
+    # Min=pd.to_datetime(df[by].min().strftime('%Y%m%d'))
+    # Max=pd.to_datetime(df[by].max().strftime('%Y%m%d'))
+    # print(Min)
+    minDelta=pd.to_datetime('20110201')-pd.to_datetime('20110201')
+    maxDelta=df['dur'].max()
+    tmp=minDelta
+    delta=pd.to_datetime('20110208')-pd.to_datetime('20110101')
+    deltas=[]
+    while tmp<maxDelta:
+        nextDelta=tmp+delta
+        ndf=df[df['dur']>=tmp]
+        ndf=ndf[ndf['dur']<nextDelta]
+        deltas.append(len(ndf))
+        tmp=nextDelta
+    return deltas
+# event 自创建到举行的时间差分析
+def eventCreatToStart():
+    event_info=pd.read_csv('data/event_simple.csv')
+    event_info['created']=pd.to_datetime(event_info['created'])
+    event_info['event_time']=pd.to_datetime(event_info['event_time'])
+    event_info['updated']=pd.to_datetime(event_info['updated'])
+    event_info['dur']=event_info['event_time']-event_info['created']
+    print(event_info.head())
+    dur_ser=deltaTrends(event_info)
+    # print(dur_ser)
+    plt.plot(dur_ser)
     plt.show()
 
 # 简化event信息
@@ -53,4 +90,5 @@ def simplifyEvent():
     rd.to_csv_noindex(event_info,'data/event_simple.csv')
 
 # simplifyEvent()
-dealEvents()
+# dealEvents()
+eventCreatToStart()
