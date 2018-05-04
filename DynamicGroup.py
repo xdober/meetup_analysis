@@ -32,6 +32,7 @@ def timeNumSer(info,sample='M'):
     for x in range(1,len(group_series),1):
         group_series[x]=group_series[x-1]+group_series[x]
     return [new_group_series,group_series]
+
 def dealGroup():
     group_info=pd.read_csv(Const.GROUP_PATH)[['group_id', 'category.shortname', 'city_id', 'city', 'created', 'members']]
     group_info['created']=pd.to_datetime(group_info['created'])
@@ -86,6 +87,7 @@ def beforeTime(df,tm,dur):
 def memberTrendsOneGroup(df,dur=False):
     num_ser=[]
     start_time=df['joined'].min()
+    start_time=pd.datetime(year=start_time.year,month=start_time.month,day=start_time.day)
     end_time=df['joined'].max()
     now=df['joined'].min()
     gap=pd.to_datetime('20110102')-pd.to_datetime('20110101')
@@ -103,6 +105,7 @@ def memberTrendsOneGroup(df,dur=False):
 def groupTrendsOneMember(df,dur=False):
     num_ser=[]
     start_time=df['joined'].min()
+    start_time=pd.datetime(year=start_time.year,month=start_time.month,day=start_time.day)
     end_time=df['visited'].max()
     now=df['joined'].min()
     gap=pd.to_datetime('20110102')-pd.to_datetime('20110101')
@@ -159,38 +162,49 @@ def memberGroupTrends():
     # memGRPs=memGRPs.sort_values(ascending=False)
     # print(memGRPs)
     gb=[gb.get_group(x) for x in gb.groups]
+    print(str(gb[0]['member_id'].values[0]))
     gb.sort(key=lambda x: customSortKey(x))
     # gb.sort(key=len,reverse=True)
     num_sers=[]
+    ndf=pd.DataFrame(data={})
     for i in range(0,len(gb)):
         num_sers.append(groupTrendsOneMember(gb[i],True))
-
+        ndf[str(gb[i]['member_id'].values[0])]=num_sers[i]
         plt.plot(num_sers[i])
+    print(num_sers[0])
+    # ndf[str(gb[0]['member_id'].values[0])]=num_sers[0]
+    # ndf[str(gb[1]['member_id'].values[0])]=num_sers[1]
+    rd.to_csv_index(ndf,'data/ActiveGroupsNumberPerMemberTop20.csv')
+    print(ndf)
     plt.show()
 
-# 不同城市的group数量走势
+# 不同城市和不同Category的group数量走势
 def cityGroupCount():
     group_info=pd.read_csv(Const.GROUP_PATH)[['group_id', 'category.shortname', 'city_id', 'city', 'created', 'members']]
     group_info = group_info.replace([r'(.*)[C|c]hicago(.*)', r'(.*)[S|s]an [F|f]rancisco(.*)', r'(.*)[N|n]ew [Y|y]ork(.*)'],['Chicago Area', 'San Francisco Area', 'New Youk Area'], regex=True)
     group_info['created']=pd.to_datetime(group_info['created'])
     group_info['simple_date']=group_info['created'].apply(lambda df : pd.datetime(year=df.year, month=df.month, day=df.day))
-    groupgb=group_info.groupby('city')
+
+    df=xGroupCount(group_info,'city')
+    rd.to_csv_index(df,'data/groupsNumberPerCity.csv')
+    df=xGroupCount(group_info,'category.shortname')
+    rd.to_csv_index(df,'data/groupsNumberPerCategory.csv')
+def xGroupCount(df,by):
+    groupgb=df.groupby(by)
     group_infos=[groupgb.get_group(x) for x in groupgb.groups]
     group_series=[]
     for x in range(len(group_infos)):
         group_series.append(timeNumSer(group_infos[x], sample='M'))
         plt.plot(group_series[x][1])
     plt.show()
-    df=pd.DataFrame(data={})
-    df[group_infos[0]['city'][0]]=group_series[0][1]
-    df[group_infos[1]['city'][0]]=group_series[1][1]
-    df[group_infos[2]['city'][0]]=group_series[2][1]
-    print(df)
-    rd.to_csv_index(df,'data/groupsNumberPerCity.csv')
+    ndf=pd.DataFrame(data={})
+    for x in range(len(group_infos)):
+        ndf[group_infos[x][by][0]]=group_series[x][1]
+    return ndf
 
 # dealGroup()
 # groupCreatedMembers()
 # groupMemberTrends()
 # selectMember(Const.MEMBER_PATH)
-# memberGroupTrends()
-cityGroupCount()
+memberGroupTrends()
+# cityGroupCount()
