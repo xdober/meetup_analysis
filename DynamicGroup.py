@@ -168,9 +168,29 @@ def memberGroupTrends():
         plt.plot(num_sers[i])
     plt.show()
 
+# 不同城市的group数量走势
+def cityGroupCount():
+    group_info=pd.read_csv(Const.GROUP_PATH)[['group_id', 'category.shortname', 'city_id', 'city', 'created', 'members']]
+    group_info = group_info.replace([r'(.*)[C|c]hicago(.*)', r'(.*)[S|s]an [F|f]rancisco(.*)', r'(.*)[N|n]ew [Y|y]ork(.*)'],['Chicago Area', 'San Francisco Area', 'New Youk Area'], regex=True)
+    group_info['created']=pd.to_datetime(group_info['created'])
+    group_info['simple_date']=group_info['created'].apply(lambda df : pd.datetime(year=df.year, month=df.month, day=df.day))
+    groupgb=group_info.groupby('city')
+    group_infos=[groupgb.get_group(x) for x in groupgb.groups]
+    group_series=[]
+    for x in range(len(group_infos)):
+        group_series.append(timeNumSer(group_infos[x], sample='M'))
+        plt.plot(group_series[x][1])
+    plt.show()
+    df=pd.DataFrame(data={})
+    df[group_infos[0]['city'][0]]=group_series[0][1]
+    df[group_infos[1]['city'][0]]=group_series[1][1]
+    df[group_infos[2]['city'][0]]=group_series[2][1]
+    print(df)
+    rd.to_csv_index(df,'data/groupsNumberPerCity.csv')
 
 # dealGroup()
 # groupCreatedMembers()
 # groupMemberTrends()
 # selectMember(Const.MEMBER_PATH)
-memberGroupTrends()
+# memberGroupTrends()
+cityGroupCount()
