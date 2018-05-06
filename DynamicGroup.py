@@ -133,12 +133,12 @@ def groupMemberTrends():
     print(len(gb))
     gb.sort(key=lambda x: customSortKey(x))
     num_sers=[]
+    ndf=pd.DataFrame({})
     for i in range(0,len(gb)):
         num_sers.append(memberTrendsOneGroup(gb[i]))
-
+        ndf[str(gb[i]['group_id'].values[0])]=num_sers[i]
         plt.plot(num_sers[i])
-    print(num_sers[4])
-    print(num_sers[4].index)
+    rd.to_csv_index(ndf,'data/MembersTrendsPerGroupTopX.csv')
     # print(len(gb[800]))
     # memberTrendsOneGroup(gb[500])
     plt.show()
@@ -151,6 +151,22 @@ def selectMember(MEM_GRP_PATH):
     member_group_df = member_group_df[member_group_df['member_id'].isin(member_ids)]
     rd.to_csv_noindex(member_group_df,MEM_GRP_PATH.split('.')[0]+'_top20.csv')
 def memberGroupTrends():
+    mem_join_group=pd.read_csv(Const.MEMBER_PATH.split('.')[0]+'_top20.csv', encoding="iso-8859-1")[['member_id','joined','visited','group_id']]
+    mem_join_group['joined']=pd.to_datetime(mem_join_group['joined'])
+    mem_join_group['visited']=pd.to_datetime(mem_join_group['visited'])
+    gb=mem_join_group.groupby('member_id')
+    gb=[gb.get_group(x) for x in gb.groups]
+    gb.sort(key=lambda x: customSortKey(x))
+    # gb.sort(key=len,reverse=True)
+    num_sers=[]
+    ndf=pd.DataFrame(data={})
+    for i in range(0,len(gb)):
+        num_sers.append(groupTrendsOneMember(gb[i]))
+        ndf[str(gb[i]['member_id'].values[0])]=num_sers[i]
+        plt.plot(num_sers[i])
+    rd.to_csv_index(ndf,'data/GroupsNumberPerMemberTop20.csv')
+    plt.show()
+def activeMemberGroupTrends():
     mem_join_group=pd.read_csv(Const.MEMBER_PATH.split('.')[0]+'_top20.csv', encoding="iso-8859-1")[['member_id','joined','visited','group_id']]
     mem_join_group['joined']=pd.to_datetime(mem_join_group['joined'])
     mem_join_group['visited']=pd.to_datetime(mem_join_group['visited'])
@@ -206,5 +222,6 @@ def xGroupCount(df,by):
 # groupCreatedMembers()
 # groupMemberTrends()
 # selectMember(Const.MEMBER_PATH)
+# activeMemberGroupTrends()
 memberGroupTrends()
 # cityGroupCount()
