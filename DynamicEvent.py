@@ -33,15 +33,38 @@ def memberTrendsOneGroup(df,created='created'):
     num_ser=pd.Series(data=num_ser,index=pd.date_range(start_time,periods=len(num_ser)))
     return num_ser
 
+# 计算不同时间段的平均duration
+def meanDuration(df,created='created'):
+    start_time=df[created].min()
+    end_time=df[created].max()
+    now=pd.datetime(year=start_time.year,month=start_time.month,day=start_time.day)
+    gap=pd.to_timedelta('7 days')
+    ser=[]
+    while (now<=end_time):
+        tmpdate=now+gap
+        tmpdf=df[df[created]>=now]
+        tmpdf=tmpdf[tmpdf[created]<tmpdate]
+        dur=tmpdf[['duration']].mean().values[0]
+        ser.append(dur)
+        now=tmpdate
+    print(ser)
+    plt.plot(ser)
+    print(max(ser))
+    plt.show()
+
+    return  ser
+
 # 处理event信息
 def dealEvents():
     event_info=pd.read_csv(Const.EVENT_PATH)
     event_info['created']=pd.to_datetime(event_info['created'])
     event_info['event_time']=pd.to_datetime(event_info['event_time'])
     event_info['updated']=pd.to_datetime(event_info['updated'])
+    # 按照group将event分组
     # events_per_group = event_per_group(event_info)
     # event_created_fig = rd.info_groupedby_created(events_per_group[0], gap='month', notsave='yes', created='created')
     # event_start_fig = rd.info_groupedby_created(events_per_group[0], gap='month', notsave='yes', created='event_time')
+    meanDuration(event_info)
     Updated=memberTrendsOneGroup(event_info,'updated')
     Created=memberTrendsOneGroup(event_info)
     Start=memberTrendsOneGroup(event_info,'event_time')
@@ -78,11 +101,19 @@ def eventCreatToStart():
     event_info['event_time']=pd.to_datetime(event_info['event_time'])
     event_info['updated']=pd.to_datetime(event_info['updated'])
     event_info['dur']=event_info['event_time']-event_info['created']
-    print(event_info.head())
     dur_ser=deltaTrends(event_info)
-    # print(dur_ser)
     plt.plot(dur_ser)
+    indexs=np.arange(1,len(dur_ser)+1)
+    newIndex=[]
+    for i in range(0,len(indexs)):
+        newIndex.append(str(indexs[i])+' weeks')
+    dur_ser=pd.Series(data=dur_ser,index=newIndex)
+    ndf=pd.DataFrame({})
+    ndf['count']=dur_ser
+    rd.to_csv_index(ndf,'data/TimedeltaLayoutEvents.csv')
+    print(dur_ser)
     plt.show()
+
 
 # 简化event信息
 def simplifyEvent():
@@ -90,5 +121,5 @@ def simplifyEvent():
     rd.to_csv_noindex(event_info,'data/event_simple.csv')
 
 # simplifyEvent()
-# dealEvents()
-eventCreatToStart()
+dealEvents()
+# eventCreatToStart()
