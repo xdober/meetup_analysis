@@ -39,8 +39,12 @@ def dealGroup():
     group_info['simple_date']=group_info['created'].apply(lambda df : pd.datetime(year=df.year, month=df.month, day=df.day))
     group_series=timeNumSer(group_info,sample='M')
     print(group_series[0])
-    # plt.plot(group_series[0])
+    ndf=pd.DataFrame({})
+    ndf['new']=group_series[0]
+    ndf['total']=group_series[1]
+    plt.plot(group_series[0])
     plt.plot(group_series[1])
+    rd.to_csv_index(ndf,'data/NewAndTotalGroupCountsTrends.csv')
     plt.show()
 
 
@@ -223,5 +227,5 @@ def xGroupCount(df,by):
 # groupMemberTrends()
 # selectMember(Const.MEMBER_PATH)
 # activeMemberGroupTrends()
-memberGroupTrends()
+# memberGroupTrends()
 # cityGroupCount()

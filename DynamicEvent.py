@@ -13,7 +13,10 @@ def event_per_group(event_info):
     return events_per_group
 
 # 统计在某个时间点之前的数量
-def beforeTime(df,tm,created):
+def beforeTime(df,tm,created,total=True):
+    if True==total:
+        ndf = df[df[created] < tm]
+        return len(ndf)
     delta=pd.to_datetime('20110201')-pd.to_datetime('20110101')
     ndf=df[df[created]<tm]
     ndf=ndf[ndf[created]>tm-delta]
@@ -39,19 +42,15 @@ def meanDuration(df,created='created'):
     end_time=df[created].max()
     now=pd.datetime(year=start_time.year,month=start_time.month,day=start_time.day)
     gap=pd.to_timedelta('7 days')
-    ser=[]
+    ser=pd.Series()
     while (now<=end_time):
         tmpdate=now+gap
         tmpdf=df[df[created]>=now]
         tmpdf=tmpdf[tmpdf[created]<tmpdate]
         dur=tmpdf[['duration']].mean().values[0]
-        ser.append(dur)
+        # ser.append(dur)
+        ser[now]=dur
         now=tmpdate
-    print(ser)
-    plt.plot(ser)
-    print(max(ser))
-    plt.show()
-
     return  ser
 
 # 处理event信息
@@ -64,12 +63,21 @@ def dealEvents():
     # events_per_group = event_per_group(event_info)
     # event_created_fig = rd.info_groupedby_created(events_per_group[0], gap='month', notsave='yes', created='created')
     # event_start_fig = rd.info_groupedby_created(events_per_group[0], gap='month', notsave='yes', created='event_time')
-    meanDuration(event_info)
+    # meanDurSer=meanDuration(event_info)
+    # ndf=pd.DataFrame({})
+    # ndf['meanDur']=meanDurSer
+    # rd.to_csv_index(ndf,'data/meanDurationTrends.csv')
+    # print('mean done')
     Updated=memberTrendsOneGroup(event_info,'updated')
     Created=memberTrendsOneGroup(event_info)
     Start=memberTrendsOneGroup(event_info,'event_time')
+    # ndf=pd.DataFrame({})
+    # ndf['updated']=Updated
+    # ndf['start']=Start
+    # ndf['created']=Created
+    # rd.to_csv_index(ndf,'data/EventCountTrendsByCreatUpdateStart.csv')
     plt.plot(Created)
-    plt.plot(Updated)
+    # plt.plot(Updated)
     plt.plot(Start)
     plt.show()
 
