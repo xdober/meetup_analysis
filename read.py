@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import read_tools as rd
 # import matplotlib.pyplot as plt
 from pylab import *
 
@@ -63,6 +64,7 @@ axes0.set_title('cities\' location')
 plt.savefig('images/cities_location.pdf', dpi=72, format='pdf')
 
 group_info = pd.read_csv(group_path)
+rd.multiSplit(group_info,['city','category.shortname'])
 group_num = group_info.shape[0]
 group_attr_num = group_info.shape[1]
 group_attrs = group_info.columns
@@ -100,6 +102,8 @@ plt.xticks(rotation='30')
 # groupby rating
 ranges = np.arange(0, 5.5, 0.5)
 group_rating = group_info['group_id'].groupby(pd.cut(group_info.rating, ranges)).count()
+
+# rd.to_csv_index(group_rating,'result/group_rating.csv')
 fig3 = plt.figure()
 wid3 = len(group_rating) * 1.6
 fig3.set_size_inches(wid3, 10.5)
@@ -119,6 +123,9 @@ fig4.set_size_inches(wid4, 10.5)
 axes4 = fig4.add_axes([0.1, 0.1, 0.8, 0.8])
 axes4.set_title('groups number per year')
 group_created.plot.bar()
+print(type(group_created))
+print(group_created)
+group_created.to_csv('data/ngroups number per year.csv')
 plt.xticks(rotation='0')
 for x, y in zip(np.arange(len(group_created)), group_created):
     plt.text(x, y + 100, '%d' % y, ha='center', va='center')

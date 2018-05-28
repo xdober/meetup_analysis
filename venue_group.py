@@ -21,6 +21,7 @@ group_city_fig = rd.info_draw(group_city_series, 'group number per city', notsav
 venue_group_info = pd.concat([venue_city_series, group_city_series], axis=1, names=['venue', 'group']).sort_values(
     by='venue', ascending=False)
 venue_group_fig = rd.info_multi_draw(venue_group_info, 'venue group per city')
+rd.to_csv_index(venue_group_info,'result/venue_and_group_per_area.csv')
 # print(venue_group_info)
 
 plt.show()

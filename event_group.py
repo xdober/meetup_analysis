@@ -6,8 +6,23 @@ from pylab import *
 # 该模块尝试分析group的人数与event数量之间的关系
 groups_info = pd.read_csv(Const.GROUP_PATH)
 events_info = pd.read_csv(Const.EVENT_PATH)
+def ePc(event_df,group_df):
+    df=pd.merge(event_df,group_df,on='group_id')
+    cate_ser=rd.info_split_merge(df,'category.shortname')
+    rd.to_csv_index(cate_ser,'result/allEventCategory.csv')
 
+    event_df1=event_df[event_df['fee.required']==1]
+    df=pd.merge(event_df1,group_df,on='group_id')
+    cate_ser=rd.info_split_merge(df,'category.shortname')
+    rd.to_csv_index(cate_ser,'result/feeEventCategory.csv')
+    cate_ser.plot.bar()
 
+    event_df0=event_df[event_df['fee.required']==0]
+    df=pd.merge(event_df0,group_df,on='group_id')
+    cate_ser=rd.info_split_merge(df,'category.shortname')
+    rd.to_csv_index(cate_ser,'result/freeEventCategory.csv')
+    plt.show()
+ePc(events_info,groups_info)
 # 画每个组的活动数与人数的柱形图，并返回结果
 # 输入：活动信息，群组信息，范围（给活动数按一定范围分组）
 # 返回：[柱形图fig,按ranges分好组的每个范围内的平均活动数和人数 , DataFrame（组名，活动数，人数）]
@@ -99,3 +114,4 @@ Career_event.to_csv(Const.CAREER_EVENT_DATA_PATH, sep=',', index=False)
 Book_event.to_csv(Const.BOOK_EVENT_DATA_PATH, sep=',', index=False)
 
 plt.show()
+

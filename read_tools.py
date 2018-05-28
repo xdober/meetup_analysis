@@ -4,6 +4,13 @@ import matplotlib.pyplot as plt
 from constant import Const
 from pylab import *
 
+def multiSplit(df,bys=[]):
+    sers=[]
+    for by in bys:
+        ser=info_split_merge(df,by)
+        sers.append(ser)
+        to_csv_index(ser,'result/'+df.columns.values[0]+'_per_'+by+'.csv')
+    return sers
 
 # kw中如果order项值为index，则按照index排序，否则按value排序
 def info_split(info, item, kw):
@@ -143,6 +150,7 @@ def info_rating(info, **kw):
         groupedby = kw['by']
     ranges = np.arange(0, 5.5, 0.5)
     splited_rating = info[info.columns[0]].groupby(pd.cut(info[groupedby], ranges)).count()
+    to_csv_index(splited_rating,'result/'+info.columns.values[0]+'_per_rating.csv')
     fig_tmp = plt.figure()
     wid3 = len(splited_rating) * 1.6
     height = splited_rating.max() / 80

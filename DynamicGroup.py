@@ -37,14 +37,14 @@ def dealGroup():
     group_info=pd.read_csv(Const.GROUP_PATH)[['group_id', 'category.shortname', 'city_id', 'city', 'created', 'members']]
     group_info['created']=pd.to_datetime(group_info['created'])
     group_info['simple_date']=group_info['created'].apply(lambda df : pd.datetime(year=df.year, month=df.month, day=df.day))
-    group_series=timeNumSer(group_info,sample='M')
+    group_series=timeNumSer(group_info,sample='W')
     print(group_series[0])
     ndf=pd.DataFrame({})
     ndf['new']=group_series[0]
     ndf['total']=group_series[1]
     plt.plot(group_series[0])
     plt.plot(group_series[1])
-    rd.to_csv_index(ndf,'data/NewAndTotalGroupCountsTrends.csv')
+    rd.to_csv_index(ndf,'data/NewAndTotalGroupCountsTrends_PerWeek.csv')
     plt.show()
 
 
@@ -133,7 +133,7 @@ def groupMemberTrends():
     mem_join_group['visited']=pd.to_datetime(mem_join_group['visited'])
     gb=mem_join_group.groupby('group_id')
     gb=[gb.get_group(x) for x in gb.groups]
-    gb=[item for item in gb if len(item)>100 and len(item)*1.0/(group_info['members'][item['group_id'].values[0]])>0.99]
+    gb=[item for item in gb if len(item)>100 and len(item)*1.0/(group_info['members'][item['group_id'].values[0]])>0.5]
     print(len(gb))
     gb.sort(key=lambda x: customSortKey(x))
     num_sers=[]
@@ -142,7 +142,7 @@ def groupMemberTrends():
         num_sers.append(memberTrendsOneGroup(gb[i]))
         ndf[str(gb[i]['group_id'].values[0])]=num_sers[i]
         plt.plot(num_sers[i])
-    rd.to_csv_index(ndf,'data/MembersTrendsPerGroupTopX.csv')
+    rd.to_csv_index(ndf,'data/MembersTrendsPerGroupTopX-n.csv')
     # print(len(gb[800]))
     # memberTrendsOneGroup(gb[500])
     plt.show()
@@ -206,21 +206,63 @@ def cityGroupCount():
     group_info['simple_date']=group_info['created'].apply(lambda df : pd.datetime(year=df.year, month=df.month, day=df.day))
 
     df=xGroupCount(group_info,'city')
-    rd.to_csv_index(df,'data/groupsNumberPerCity.csv')
+    rd.to_csv_index(df,'data/groupsNumberPerCity_PerWeek.csv')
     df=xGroupCount(group_info,'category.shortname')
-    rd.to_csv_index(df,'data/groupsNumberPerCategory.csv')
+    rd.to_csv_index(df,'data/groupsNumberPerCategory_PerWeek.csv')
 def xGroupCount(df,by):
     groupgb=df.groupby(by)
     group_infos=[groupgb.get_group(x) for x in groupgb.groups]
     group_series=[]
     for x in range(len(group_infos)):
-        group_series.append(timeNumSer(group_infos[x], sample='M'))
+        group_series.append(timeNumSer(group_infos[x], sample='W'))
         plt.plot(group_series[x][1])
     plt.show()
     ndf=pd.DataFrame(data={})
     for x in range(len(group_infos)):
         ndf[group_infos[x][by][0]]=group_series[x][1]
     return ndf
+
+# 会员维持长时间活跃的群组的规律
+def selTimeLong(df,List):
+    D_list=pd.to_timedelta(List,unit='D')
+    gb=df.groupby(pd.cut(df['hold'], D_list))
+    ser=gb.count()
+    gb=[gb.get_group(x) for x in gb.groups]
+    return gb,ser
+def selGroupThenCate(df,min=300):
+    minD=pd.to_timedelta(min,unit='D')
+    df=df[df['hold']>minD]
+    group_info=pd.read_csv(Const.GROUP_PATH)
+    df=pd.merge(df,group_info,on='group_id')
+    return df.groupby('category.shortname').count()
+def activeGroup():
+    df=pd.read_csv(Const.MEMBER_PATH, encoding="iso-8859-1")
+
+    # group_info=pd.read_csv(Const.GROUP_PATH)
+    # tmpdf=pd.merge(df,group_info,on='group_id')
+    # serr = tmpdf.groupby('category.shortname').count()['who']
+    # rd.to_csv_index(serr,'result/tttmmmp.csv')
+    # serr.plot.bar()
+    # plt.show()
+    df['joined'] = pd.to_datetime(df['joined'])
+    df['visited'] = pd.to_datetime(df['visited'])
+    df['hold']= df['visited']-df['joined']
+    # mem_join_grp = pd.read_csv(Const.MEMBER_PATH.split('.')[0]+'_top20.csv')
+    # mem_join_grp['joined'] = pd.to_datetime(mem_join_grp['joined'])
+    # mem_join_grp['visited'] = pd.to_datetime(mem_join_grp['visited'])
+    # mem_join_grp['hold']= mem_join_grp['visited']-mem_join_grp['joined']
+    # max=mem_join_grp['hold'].values.max()
+    # max=max.astype('timedelta64[D]')
+    # max=max/np.timedelta64(1, 'D')
+    # gb,ser=selTimeLong(df,np.arange(0,max,100))
+    # rd.to_csv_index(ser['member_id'],'result/differentActiveGroupTime.csv')
+    cate_ser=selGroupThenCate(df,min=600)['who']
+    rd.to_csv_index(cate_ser,'result/active600GroupNumberPerCategory.csv')
+    cate_ser=selGroupThenCate(df,min=900)['who']
+    rd.to_csv_index(cate_ser,'result/active900GroupNumberPerCategory.csv')
+    cate_ser.plot.bar()
+    plt.show()
+
 
 # dealGroup()
 # groupCreatedMembers()
@@ -229,3 +271,4 @@ def xGroupCount(df,by):
 # activeMemberGroupTrends()
 # memberGroupTrends()
 # cityGroupCount()
+activeGroup()
